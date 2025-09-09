@@ -6,17 +6,77 @@ const loadLesson = () =>{
   .then((json) => displayLesson(json.data));
 }
   
-const removeActive = ()=>{
-  
-}
 
+ 
+// active button ar jonno 
+const removeActive = () =>{
+  const lessonButtons = document.querySelectorAll(".lesson-btn")
+  // console.log(lessonButtons);
+  lessonButtons.forEach(btn => btn.classList.remove("active"))
+}
 
  const loadLevelWord = (id)=>{
   const url = `https://openapi.programming-hero.com/api/level/${id}`
   fetch(url)
   .then((res) => res.json())
-  .then((data) => displayLevelWord(data.data))
+  .then((data) => {
+  //  remove button k call 
+  removeActive(); /**remove all active class */
+    const clickBtn = document.getElementById(`lesson-btn-${id}`);
+    // console.log(clickBtn)
+    clickBtn.classList.add("active"); /**add active class */
+    displayLevelWord(data.data)
+  })
  }
+
+ const loadWordDetail = async(id)  =>{
+  const url = `https://openapi.programming-hero.com/api/word/${id}`
+  // console.log(url)
+  const res = await fetch(url);
+  const details = await res.json();
+ displayWordDetails(details.data)
+ }
+//  displayWordDetails 
+const displayWordDetails = (word)=>{
+  console.log(word)
+  const detailsBox =  document.getElementById("details-container")
+//  {
+//     "word": "Eager",
+//     "meaning": "আগ্রহী",
+//     "pronunciation": "ইগার",
+//     "level": 1,
+//     "sentence": "The kids were eager to open their gifts.",
+//     "points": 1,
+//     "partsOfSpeech": "adjective",
+//     "synonyms": [
+//         "enthusiastic",
+//         "excited",
+//         "keen"
+//     ],
+//     "id": 5
+// }
+  
+  detailsBox.innerHTML = `
+   <div class="">
+        <h2 class="text-2xl font-bold">${word.word} (<i class="fa-solid fa-microphone-lines"></i> : ${word.pronunciation})</h2>
+      </div> 
+      <div>
+        <h2 class="font-bold">Meaning</h2>
+        <p>${word.meaning}</p>
+      </div>
+      <div>
+        <h2 class="font-bold">Example</h2>
+        <p>${word.sentence}</p>
+      </div>
+      <div>
+        <h2 class="font-bold">Synonym</h2>
+        <span class="btn">syn</span>
+        <span class="btn">syn</span>
+        <span class="btn">syn</span>
+      </div>
+      `
+   document.getElementById("word_modal").showModal();
+}
 
 //   display levelWord
 const displayLevelWord = (words) =>{
@@ -45,7 +105,7 @@ const displayLevelWord = (words) =>{
       <p class="font-semibold">Meaning /Pronounciation</p>
       <div class="text-2xl font-medium font-bangla">${word.meaning?word.meaning:"অর্থ পাওয়া যায় নি"} / ${word.pronunciation ?word.pronunciation: "pronounciation পাওয়া যায় নি"}</div>
       <div class=" flex justify-between items-center ">
-        <button class="btn bg-[#1A91FF10] hover:bg-[#1A91FF90]"><i class="fa-solid fa-circle-info"></i></button>
+        <button onclick = "loadWordDetail(${word.id})" class="btn bg-[#1A91FF10] hover:bg-[#1A91FF90]"><i class="fa-solid fa-circle-info"></i></button>
         <button class="btn bg-[#1A91FF10] hover:bg-[#1A91FF90]"><i class="fa-solid fa-volume-high"></i></button>
 
       </div>
@@ -67,7 +127,7 @@ const displayLesson = (lessons)=>{
   // 3.create element
   const btnDiv = document.createElement("div");
   btnDiv.innerHTML =`
-  <button onclick = "loadLevelWord(${lesson.level_no})" class="btn btn-outline btn-primary"><i class="fa-solid fa-book-open"></i>Lesson - ${lesson.level_no} </button>
+  <button id= "lesson-btn-${lesson.level_no}" onclick = "loadLevelWord(${lesson.level_no})" class="btn btn-outline btn-primary lesson-btn"><i class="fa-solid fa-book-open"></i>Lesson - ${lesson.level_no} </button>
   
   `
   // 4. append into container
